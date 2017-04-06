@@ -163,5 +163,5 @@ if __name__ == "__main__":
 
 
 def __call__(self, *args, **kwargs):
-    tf.app.run()
+    main([])
     return "CNN MNIST Complete!"
