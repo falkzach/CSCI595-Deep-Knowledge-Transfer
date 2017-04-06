@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-import tkinter as tk
 import queue
 import threading
+import tkinter as tk
 
 import compute
 import frontend
 
 
-class ThreadTask(threading.Thread):
+class ConsumerThread(threading.Thread):
 
     def __init__(self, msg_queue, job_queue):
         threading.Thread.__init__(self)
@@ -25,12 +25,50 @@ class ThreadTask(threading.Thread):
             pass
 
 
-class GUI:
+# Base Application class
+class APP:
 
     def __init__(self):
         # queues exist in main thread
         self.msg_queue = queue.Queue()
         self.job_queue = queue.Queue()
+
+    def process_queues(self):
+        try:
+            if (not self.job_queue.empty()):
+                ConsumerThread(self.msg_queue, self.job_queue).start()
+        except:
+            pass
+
+        try:
+            msg = self.msg_queue.get_nowait()
+            print(msg)
+        except:
+            pass
+
+        self.call_thread()
+
+    # abstract, to be implemented in concrete Applications
+    def call_thread(self):
+        pass
+
+    def submit_job(self, callable, args=[], kwargs ={}):
+        self.job_queue.put((callable, args, kwargs))
+
+    def test_job(self):
+        self.submit_job(compute)
+
+
+# CLI implementation of the application
+class CLI(APP):
+    pass
+
+
+# GUI implementation of the application
+class GUI(APP):
+
+    def __init__(self):
+        super().__init__()
 
         # initiate tk interactive
         self.root = tk.Tk()
@@ -46,27 +84,5 @@ class GUI:
         # run tk main looop
         self.root.mainloop()
 
-    def process_queues(self):
-        try:
-            if(not self.job_queue.empty()):
-                ThreadTask(self.msg_queue, self.job_queue).start()
-        except:
-            pass
-
-        try:
-            msg = self.msg_queue.get_nowait()
-            print(msg)
-        except:
-            pass
-
-        self.call_thread()
-
-
     def call_thread(self):
         self.root.after(100, self.process_queues) # 100ms delay instead of unnecessary continuous processing
-
-    def submit_job(self, callable, args=[], kwargs ={}):
-        self.job_queue.put((callable, args, kwargs))
-
-    def test_job(self):
-        self.submit_job(compute)
