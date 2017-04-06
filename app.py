@@ -4,6 +4,7 @@ import queue
 import threading
 import tkinter as tk
 
+import cnn_mnist
 import compute
 import frontend
 
@@ -26,7 +27,7 @@ class ConsumerThread(threading.Thread):
 
 
 # Base Application class
-class APP:
+class APP(object):
 
     def __init__(self):
         # queues exist in main thread
@@ -58,9 +59,14 @@ class APP:
     def test_job(self):
         self.submit_job(compute)
 
+    def test_cnn_mnst(self):
+        self.submit_job(cnn_mnist)
+
+
 
 # CLI implementation of the application
 class CLI(APP):
+
     pass
 
 
@@ -81,8 +87,9 @@ class GUI(APP):
         # begin processor
         self.call_thread()
 
-        # run tk main looop
+        # run tk main loop
         self.root.mainloop()
 
+    # tk implementation of call_thread, calls after the main tk event loop
     def call_thread(self):
-        self.root.after(100, self.process_queues) # 100ms delay instead of unnecessary continuous processing
+        self.root.after(100, self.process_queues)
