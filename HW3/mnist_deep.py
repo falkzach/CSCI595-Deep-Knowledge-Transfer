@@ -35,6 +35,9 @@ def max_pool_2x2(x):
 
 if __name__  == "__main__":
 
+    DEEP_LAYERS = 1024
+    LEARNING_RATE = 1e-4 # 1e-3 for GD, 1e-4 for ADAM
+
     ###### SETUP ######
 
     # dataset, because we need data
@@ -86,20 +89,20 @@ if __name__  == "__main__":
     ###### HIDDEN LAYERS ######
 
     # Densely connected Layer 1
-    W_fc1 = weight_variable([7 * 7 * 64, 1024])
-    b_fc1 = bias_variable([1024])
+    W_fc1 = weight_variable([7 * 7 * 64, DEEP_LAYERS])
+    b_fc1 = bias_variable([DEEP_LAYERS])
 
     h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
     h_fc1 = tf.nn.relu6(tf.matmul(h_pool2_flat, W_fc1) + b_fc1) #our densly connected layer
     # h_fc16 = tf.nn.sigmoid(tf.matmul(h_pool2_flat, W_fc1) + b_fc1) #our densly connected layer
 
     ###### Interlayer DROPOUT ######
-    h_fc1_drop1 = tf.nn.dropout(h_fc1, keep_prob)
+    # h_fc1_drop1 = tf.nn.dropout(h_fc1, keep_prob)
 
     ###### MORE HIDDEN LAYERS ######
     # W_fc12 = weight_variable([1024, 1024])
     # b_fc12 = bias_variable([1024])
-    # h_fc12 = tf.nn.relu(tf.matmul(h_fc1_drop1, W_fc12) + b_fc12)  # our densly connected layer
+    # h_fc12 = tf.nn.relu(tf.matmul(h_fc1, W_fc12) + b_fc12)  # our densly connected layer
 
     # DROPOUT
     # h_fc1_drop2 = tf.nn.dropout(h_fc12, keep_prob)
@@ -126,7 +129,7 @@ if __name__  == "__main__":
     ###### READOUT AND VECTORIZE ######
 
     # READOUT LAYER
-    W_fc2 = weight_variable([1024, 10])
+    W_fc2 = weight_variable([DEEP_LAYERS, 10])
     b_fc2 = bias_variable([10])
 
     # vectorize
@@ -134,17 +137,17 @@ if __name__  == "__main__":
     ###
     ### Modify based out final layer
     ###
-    # y_conv = tf.matmul(h_fc1, W_fc2) + b_fc2        #Basic Single dense layer
-    y_conv = tf.matmul(h_fc1_drop1, W_fc2) + b_fc2     #With Dropout
+    y_conv = tf.matmul(h_fc1, W_fc2) + b_fc2        #Basic Single dense layer
+    # y_conv = tf.matmul(h_fc1_drop1, W_fc2) + b_fc2     #With Dropout
     # y_conv = tf.matmul(h_fcl_batch_norm, W_fc2) + b_fc2     #With Batch Normalization
-    # y_conv = tf.matmul(h_fc1_drop2, W_fc2) + b_fc2     #second strongly connected layer
+    # y_conv = tf.matmul(h_fc12, W_fc2) + b_fc2     #second strongly connected layer
     # y_conv = tf.matmul(h_fc1_drop3, W_fc2) + b_fc2     #third strongly connected layer
     # y_conv = tf.matmul(h_fc16, W_fc2) + b_fc2        #Basic Single dense layer with relu6
 
     ###### TRAIN AND EVALUATE ######
     cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv))
-    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-    # train_step = tf.train.GradientDescentOptimizer(1e-3).minimize(cross_entropy)
+    train_step = tf.train.AdamOptimizer(LEARNING_RATE).minimize(cross_entropy)
+    # train_step = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(cross_entropy)
     correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     sess.run(tf.global_variables_initializer())
