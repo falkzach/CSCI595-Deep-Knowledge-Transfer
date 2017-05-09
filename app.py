@@ -7,9 +7,9 @@ import sys
 import tkinter as tk
 from tkinter import messagebox
 
-import frontend
-import job
-import ioredirect
+from frontend import Frontend
+from experiment import Experiment, ConsumerThread
+from ioredirect import TkIoRedirect
 
 
 # Base Application class
@@ -17,26 +17,28 @@ class APP(object):
     def __init__(self):
         # queues exist in main thread
         self.msg_queue = queue.Queue()
-        self.job_queue = queue.Queue()
+        self.experiment_queue = queue.Queue()
         self.tf_thread = None
-        self.finished_jobs = []
+        self.finished_experiments = []
 
     # called after the TK event loop by call
     def process_queues(self):
+        # consumes jobs and process
         try:
             # check if there is a job in queue and no job running
-            if not self.job_queue.empty():
+            if not self.experiment_queue.empty():
                 if self.tf_thread is None:
-                    self.tf_thread = job.ConsumerThread(self.msg_queue, self.job_queue)
+                    self.tf_thread = ConsumerThread(self.msg_queue, self.experiment_queue)
                     self.tf_thread.start()
 
             if not self.tf_thread.isAlive():
                 self.tf_thread.join()
-                self.finished_jobs.append(self.tf_thread)
+                self.finished_experiments.append(self.tf_thread)
                 self.tf_thread = None
         except:
             pass
 
+        # process messages from finished threads
         try:
             msg = self.msg_queue.get_nowait()
             print(msg)
@@ -50,11 +52,11 @@ class APP(object):
         pass
 
     def submit_job(self, job):
-        self.job_queue.put(job)
+        self.experiment_queue.put(job)
 
     def queue_by_path(self, path):
         if os.path.isfile(path):
-            experiment = job.Job(path)
+            experiment = Experiment(path)
             if "__call__" in dir(experiment.callable):
                 self.submit_job(experiment)
             else:
@@ -83,10 +85,10 @@ class GUI(APP):
         self.root.configure(background='black')
 
         # initiate our frontend
-        self.frontend = frontend.Frontend(self.root, self)
+        self.frontend = Frontend(self.root, self)
 
         # redirect STDOUT
-        sys.stdout = ioredirect.TkIoRedirect(self.frontend.get_output_pane())
+        sys.stdout = TkIoRedirect(self.frontend.get_output_pane())
 
         # begin processor
         self.call_thread()
@@ -108,7 +110,7 @@ class GUI(APP):
         if self.tf_thread is None:
             self.exit()
 
-        elif self.tf_thread.isAlive() or (self.tf_thread is job.ConsumerThread and not self.job_queue.empty()):
+        elif self.tf_thread.isAlive() or (self.tf_thread is ConsumerThread and not self.experiment_queue.empty()):
             if messagebox.askokcancel("Quit", "Jobs still running, are you sure you want to quit?"):
                 self.exit()
 

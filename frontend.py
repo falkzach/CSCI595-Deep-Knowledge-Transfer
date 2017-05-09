@@ -15,34 +15,34 @@ class Frontend(tk.Frame):
         self.configure(background='grey')
 
         self.file_path = tk.StringVar()
-        self.current_job = tk.StringVar()
+        self.current_experiment = tk.StringVar()
 
         # Test buttons for initial tinkering
         tk.Label(self, text="Test Buttons").place(x=0, y = 675)
         tk.Button(self, text="CNN MNIST", command=self.cnn_mst).place(x=75, y=675)
         tk.Button(self, text="Hello", command=self.hello).place(x=150, y=675)
 
-        self.job_queue_label = tk.Label(self, text="Queued Jobs")
-        self.job_queue_label.place(x=25, y=25)
-        self.job_queue_lstbox = tk.Listbox(self, width=40)
-        self.job_queue_lstbox.place(x=25, y=50)
+        self.queued_experiments_label = tk.Label(self, text="Queued Experiments")
+        self.queued_experiments_label.place(x=25, y=25)
+        self.experiment_queue_listbox = tk.Listbox(self, width=40)
+        self.experiment_queue_listbox.place(x=25, y=50)
 
-        self.finished_queue_label = tk.Label(self, text="Finished Jobs")
-        self.finished_queue_label.place(x=25, y=275)
-        self.finished_jobs_lstbox = tk.Listbox(self, width=40)
-        self.finished_jobs_lstbox.place(x=25, y=300)
+        self.finished_experiments_label = tk.Label(self, text="Finished Experiments")
+        self.finished_experiments_label.place(x=25, y=275)
+        self.finished_experiments_listbox = tk.Listbox(self, width=40)
+        self.finished_experiments_listbox.place(x=25, y=300)
 
         self.file_path_text = tk.Entry(self, width=75, textvariable=self.file_path)
         self.file_path_text.place(x=300, y=25)
 
-        self.load_job_button = tk.Button(self, text="Load", command= lambda: self.load_file(self.file_path.get()))
-        self.load_job_button.place(x=300, y=0)
+        self.load_experiments_button = tk.Button(self, text="Load", command= lambda: self.load_file(self.file_path.get()))
+        self.load_experiments_button.place(x=300, y=0)
 
-        self.queue_job_button = tk.Button(self, text="Queue", command=lambda: self.queue())
-        self.queue_job_button.place(x=375, y=0)
+        self.queue_experiment_button = tk.Button(self, text="Queue", command=lambda: self.queue())
+        self.queue_experiment_button.place(x=375, y=0)
 
-        self.current_job_label = tk.Label(self, textvariable=self.current_job)
-        self.current_job_label.place(x=300, y=50)
+        self.current_experiment_label = tk.Label(self, textvariable=self.current_experiment)
+        self.current_experiment_label.place(x=300, y=50)
 
         self.output_pane = tk.Text(self, wrap = 'none')
         self.output_pane.place(x=300, y=100)
@@ -72,19 +72,19 @@ class Frontend(tk.Frame):
 
     def update_elements(self):
         # Queued Jobs, clear and re populate
-        self.job_queue_lstbox.delete(0, tk.END)
-        for job in list(self.app.job_queue.queue):
-            self.job_queue_lstbox.insert(tk.END, job)
+        self.experiment_queue_listbox.delete(0, tk.END)
+        for experiment in list(self.app.experiment_queue.queue):
+            self.experiment_queue_listbox.insert(tk.END, experiment)
 
-        # Current Job, set to current job
-        self.current_job.set(self.app.tf_thread)  # TODO: make a job object, store the name?
+        # Current experiment
+        self.current_experiment.set(self.app.tf_thread)
 
-        # Finished Jobs, find unaccounted for and populate
-        front = self.finished_jobs_lstbox.size()
-        back = len(self.app.finished_jobs)
+        # Finished experiments, find unaccounted for and populate
+        front = self.finished_experiments_listbox.size()
+        back = len(self.app.finished_experiments)
         if back > front:
             for i in range(front, back):
-                self.finished_jobs_lstbox.insert(tk.END, self.app.finished_jobs[back-1])
+                self.finished_experiments_listbox.insert(tk.END, self.app.finished_experiments[back - 1])
 
         self.call_update()
 
