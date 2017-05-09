@@ -9,7 +9,6 @@ from importlib.machinery import SourceFileLoader
 from tkinter import messagebox
 
 from tests import hello
-from tests import test1
 
 import frontend
 from tests import mnist_deep
@@ -73,9 +72,6 @@ class APP(object):
     def submit_job(self, callable, args=[], kwargs ={}):
         self.job_queue.put((callable, args, kwargs))
 
-    def test_job(self):
-        self.submit_job(test1)
-
     def test_cnn_mnst(self):
         self.submit_job(mnist_deep)
 
@@ -106,6 +102,7 @@ class GUI(APP):
         self.root = tk.Tk()
         self.root.title("TF Knowledge Transfer")  # TODO: extract app name
         self.root.geometry("1200x700+300+300")  # TODO: extract app layout dimensions
+        self.root.configure(background='black')
 
         # initiate our frontend
         self.frontend = frontend.Frontend(self.root, self)

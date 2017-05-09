@@ -11,45 +11,43 @@ class Frontend(tk.Frame):
 
         self.parent = parent
         self.app = app
-        self.output_pane = None
+
+        self.configure(background='grey')
 
         self.file_path = tk.StringVar()
         self.current_job = tk.StringVar()
 
-        self.initUI()
-
-    def initUI(self):
         # Test buttons for initial tinkering
         tk.Label(self, text="Test Buttons").place(x=0, y = 675)
-        tk.Button(self, text="Test", command=self.test).place(x=75, y=675)
-        tk.Button(self, text="CNN MNIST", command=self.cnn_mst).place(x=125, y=675)
-        tk.Button(self, text="Hello", command=self.hello).place(x=225, y=675)
+        tk.Button(self, text="CNN MNIST", command=self.cnn_mst).place(x=75, y=675)
+        tk.Button(self, text="Hello", command=self.hello).place(x=150, y=675)
 
-        self.job_queue_lstbox = tk.Listbox(self)
-        self.job_queue_lstbox.place(x=25, y=0)
+        self.job_queue_label = tk.Label(self, text="Queued Jobs")
+        self.job_queue_label.place(x=25, y=25)
+        self.job_queue_lstbox = tk.Listbox(self, width=40)
+        self.job_queue_lstbox.place(x=25, y=50)
 
-        self.current_job_label = tk.Label(self, textvariable=self.current_job)
-        self.current_job_label.place(x=25, y=190)
-
-        self.finished_jobs_lstbox = tk.Listbox(self)
-        self.finished_jobs_lstbox.place(x=25, y=225)
+        self.finished_queue_label = tk.Label(self, text="Finished Jobs")
+        self.finished_queue_label.place(x=25, y=275)
+        self.finished_jobs_lstbox = tk.Listbox(self, width=40)
+        self.finished_jobs_lstbox.place(x=25, y=300)
 
         self.file_path_text = tk.Entry(self, width=75, textvariable=self.file_path)
-        self.file_path_text.place(x=200, y=25)
+        self.file_path_text.place(x=300, y=25)
 
         self.load_job_button = tk.Button(self, text="Load", command= lambda: self.load_file(self.file_path.get()))
-        self.load_job_button.place(x=200, y=0)
+        self.load_job_button.place(x=300, y=0)
 
         self.queue_job_button = tk.Button(self, text="Queue", command=lambda: self.queue())
-        self.queue_job_button.place(x=275, y=0)
+        self.queue_job_button.place(x=375, y=0)
 
-        self.output_pane = tk.Text(self, wrap = 'word')
-        self.output_pane.place(x=200, y=50)
+        self.current_job_label = tk.Label(self, textvariable=self.current_job)
+        self.current_job_label.place(x=300, y=50)
+
+        self.output_pane = tk.Text(self, wrap = 'none')
+        self.output_pane.place(x=300, y=100)
 
         self.pack(fill=tk.BOTH, expand=1)
-
-    def test(self):
-        self.app.test_job()
 
     def cnn_mst(self):
         self.app.test_cnn_mnst()
@@ -73,15 +71,15 @@ class Frontend(tk.Frame):
         return self.output_pane
 
     def update_elements(self):
-        # Queued Jobs
+        # Queued Jobs, clear and re populate
         self.job_queue_lstbox.delete(0, tk.END)
         for job in list(self.app.job_queue.queue):
             self.job_queue_lstbox.insert(tk.END, job)
 
-        # Current Job
+        # Current Job, set to current job
         self.current_job.set(self.app.job)  # TODO: make a job object, store the name?
 
-        # Finished Jobs
+        # Finished Jobs, find unaccounted for and populate
         front = self.finished_jobs_lstbox.size()
         back = len(self.app.finished_jobs)
         if (back > front):
