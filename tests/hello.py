@@ -13,4 +13,4 @@ if __name__ =="__main__":
 
 def __call__(self, *args, **kwargs):
     main([])
-    return "Hello Complete!"
+    return "Hello Complete!", None

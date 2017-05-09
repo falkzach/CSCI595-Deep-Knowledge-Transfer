@@ -126,7 +126,7 @@ def main(unused_argv):
 
 def __call__(self, *args, **kwargs):
     network = main([])
-    return "CNN MNIST Complete!"
+    return "CNN MNIST Complete!", None
 
 
 if __name__  == "__main__":

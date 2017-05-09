@@ -3,7 +3,6 @@
 import tkinter as tk
 import tkinter.filedialog as fd
 
-
 class Frontend(tk.Frame):
 
     def __init__(self, parent, app):
@@ -41,11 +40,14 @@ class Frontend(tk.Frame):
         self.queue_experiment_button = tk.Button(self, text="Queue", command=lambda: self.queue())
         self.queue_experiment_button.place(x=375, y=0)
 
+        self.label_current_experiment = tk.Label(self, text="Current Experiment")
+        self.label_current_experiment.place(x=300, y=50)
+
         self.current_experiment_label = tk.Label(self, textvariable=self.current_experiment)
-        self.current_experiment_label.place(x=300, y=50)
+        self.current_experiment_label.place(x=425, y=50)
 
         self.output_pane = tk.Text(self, wrap = 'none')
-        self.output_pane.place(x=300, y=100)
+        self.output_pane.place(x=300, y=75)
 
         self.pack(fill=tk.BOTH, expand=1)
 
@@ -74,17 +76,20 @@ class Frontend(tk.Frame):
         # Queued Jobs, clear and re populate
         self.experiment_queue_listbox.delete(0, tk.END)
         for experiment in list(self.app.experiment_queue.queue):
-            self.experiment_queue_listbox.insert(tk.END, experiment)
+            self.experiment_queue_listbox.insert(tk.END, experiment.name)
 
         # Current experiment
-        self.current_experiment.set(self.app.tf_thread)
+        current_experiment = "None"
+        if self.app.tf_thread is not None:
+            current_experiment = self.app.tf_thread.name
+        self.current_experiment.set(current_experiment)
 
         # Finished experiments, find unaccounted for and populate
         front = self.finished_experiments_listbox.size()
         back = len(self.app.finished_experiments)
         if back > front:
             for i in range(front, back):
-                self.finished_experiments_listbox.insert(tk.END, self.app.finished_experiments[back - 1])
+                self.finished_experiments_listbox.insert(tk.END, self.app.finished_experiments[back - 1].name)
 
         self.call_update()
 

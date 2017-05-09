@@ -21,9 +21,13 @@ class Experiment(ConsumerThread):
         self.args = []
         self.kwargs = {}
         self.result = ""
+        self.network = None
 
     def execute(self):
-        self.result = self.callable.__call__(self.args, self.kwargs)
+        try:
+            self.result, self.network = self.callable.__call__(self.args, self.kwargs)
+        except(TypeError):
+            print("No result returned from the experimented " + self.name + "!")
 
     # overrides the Thread run function
     def run(self):

@@ -97,4 +97,4 @@ def main(unused_argv):
 
 def __call__(self, *args, **kwargs):
     network = main([])
-    return network
+    return "TEST MLP MOD Complete", network

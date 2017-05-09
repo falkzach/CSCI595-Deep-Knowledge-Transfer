@@ -5,7 +5,7 @@ import tensorflow as tf
 
 def __call__(self, *args, **kwargs):
     main([])
-    return "Success!"
+    return "Success!", None
 
 
 def main(unused_argv):
