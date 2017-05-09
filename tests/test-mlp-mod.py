@@ -93,8 +93,8 @@ def main(unused_argv):
         # Calculate accuracy
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
         print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
-    return
+    return sess
 
 def __call__(self, *args, **kwargs):
-    network = main([])
-    return "TEST MLP MOD Complete", network
+    session = main([])
+    return "TEST MLP MOD Complete", session

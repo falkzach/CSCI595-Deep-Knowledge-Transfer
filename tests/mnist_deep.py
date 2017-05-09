@@ -123,10 +123,12 @@ def main(unused_argv):
 
     print("test accuracy %g" % accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0}))
 
+    return sess
+
 
 def __call__(self, *args, **kwargs):
-    network = main([])
-    return "CNN MNIST Complete!", None
+    session = main([])
+    return "CNN MNIST Complete!", session
 
 
 if __name__  == "__main__":

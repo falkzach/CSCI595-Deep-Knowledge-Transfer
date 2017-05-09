@@ -14,8 +14,9 @@ from ioredirect import TkIoRedirect
 
 # Base Application class
 class APP(object):
-    def __init__(self):
+    def __init__(self, instance):
         # queues exist in main thread
+        self.me = instance
         self.msg_queue = queue.Queue()
         self.experiment_queue = queue.Queue()
         self.tf_thread = None
@@ -75,8 +76,8 @@ class CLI(APP):
 
 # GUI implementation of the application
 class GUI(APP):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, instance):
+        super().__init__(instance)
 
         # initiate tk interactive
         self.root = tk.Tk()
@@ -117,4 +118,4 @@ class GUI(APP):
     def exit(self):
         # TODO: interupt running job
         self.root.destroy()
-        sys.exit()
+        sys.exit(0)

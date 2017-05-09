@@ -3,11 +3,6 @@
 import tensorflow as tf
 
 
-def __call__(self, *args, **kwargs):
-    main([])
-    return "Success!", None
-
-
 def main(unused_argv):
     config = tf.ConfigProto(device_count={'GPU': 0})
     with tf.Session(config=config) as sess:
@@ -21,3 +16,8 @@ def main(unused_argv):
         print("node2: ", node2)
         print("node3: ", node3)
         print("sess.run(node3): ", sess.run(node3))
+    return sess
+
+def __call__(self, *args, **kwargs):
+    session = main([])
+    return "Test 1 Complet!", session

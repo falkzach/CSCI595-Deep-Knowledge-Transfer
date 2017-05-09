@@ -15,6 +15,7 @@ class Frontend(tk.Frame):
 
         self.file_path = tk.StringVar()
         self.current_experiment = tk.StringVar()
+        self.current_experiment.set("None")
 
         # Test buttons for initial tinkering
         tk.Label(self, text="Test Buttons").place(x=0, y = 675)
