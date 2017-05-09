@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 
 import os
-import sys
-from importlib.machinery import SourceFileLoader
 import queue
+import sys
 import threading
 import tkinter as tk
+from importlib.machinery import SourceFileLoader
 from tkinter import messagebox
 
-import frontend
+from tests import hello
+from tests import test1
 
-#TODO: our experiment, fine way to import by file
-import mnist_deep
-import test1
-import hello
+import frontend
+from tests import mnist_deep
+
 
 class ConsumerThread(threading.Thread):
 
@@ -91,10 +91,8 @@ class APP(object):
                 print("__call__ not defined for " + path)
 
 
-
 # CLI implementation of the application
 class CLI(APP):
-
     pass
 
 
@@ -121,6 +119,9 @@ class GUI(APP):
         # handle closeing window
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+        # update watcher
+        self.frontend.call_update()
+
         # run tk main loop
         self.root.mainloop()
 
@@ -130,13 +131,16 @@ class GUI(APP):
 
     def on_close(self):
         if(self.job is None):
-            self.root.destroy()
+            self.exit()
 
         elif(self.job.isAlive() or ( self.job is ConsumerThread and not self.job_queue.empty() ) ):
             if messagebox.askokcancel("Quit", "Jobs still running, are you sure you want to quit?"):
-                self.root.destroy()
+                self.exit()
 
+    def exit(self):
         # TODO: interupt running job
+        self.root.destroy()
+        sys.exit()
 
 
 class TK_IO_Redirect(object):
@@ -147,6 +151,7 @@ class TK_IO_Redirect(object):
         self.text_area.config(state="normal")
         self.text_area.insert("insert", message)
         self.text_area.config(state="disabled")
+        self.text_area.see("end")
 
     def flush(self):
         pass
