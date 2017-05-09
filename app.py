@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 from importlib.machinery import SourceFileLoader
 import queue
 import threading
@@ -84,7 +85,10 @@ class APP(object):
     def queue_by_path(self, path):
         if ( os.path.isfile(path) ):
             foo = SourceFileLoader("", path).load_module()
-            self.submit_job(foo)
+            if ("__call__" in dir(foo)):
+                self.submit_job(foo)
+            else:
+                print("__call__ not defined for " + path)
 
 
 
@@ -103,10 +107,13 @@ class GUI(APP):
         # initiate tk interactive
         self.root = tk.Tk()
         self.root.title("TF Knowledge Transfer")  # TODO: extract app name
-        self.root.geometry("800x500+300+300")  # TODO: extract app layout dimensions
+        self.root.geometry("1200x700+300+300")  # TODO: extract app layout dimensions
 
         # initiate our frontend
         self.frontend = frontend.Frontend(self.root, self)
+
+        # redirect STDOUT
+        sys.stdout = TK_IO_Redirect(self.frontend.get_output_pane())
 
         # begin processor
         self.call_thread()
@@ -128,3 +135,18 @@ class GUI(APP):
         elif(self.job.isAlive() or ( self.job is ConsumerThread and not self.job_queue.empty() ) ):
             if messagebox.askokcancel("Quit", "Jobs still running, are you sure you want to quit?"):
                 self.root.destroy()
+
+        # TODO: interupt running job
+
+
+class TK_IO_Redirect(object):
+    def __init__(self,text_area):
+        self.text_area = text_area
+
+    def write(self, message):
+        self.text_area.config(state="normal")
+        self.text_area.insert("insert", message)
+        self.text_area.config(state="disabled")
+
+    def flush(self):
+        pass

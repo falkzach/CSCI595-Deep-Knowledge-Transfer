@@ -11,6 +11,7 @@ class Frontend(tk.Frame):
 
         self.parent = parent
         self.app = app
+        self.output_pane = None
 
         self.file_path = tk.StringVar()
 
@@ -18,10 +19,10 @@ class Frontend(tk.Frame):
 
     def initUI(self):
         # Test buttons for initial tinkering
-        tk.Label(self, text="Test Buttons").place(x=0, y = 475)
-        tk.Button(self, text="Test", command=self.test).place(x=75, y=475)
-        tk.Button(self, text="CNN MNIST", command=self.cnn_mst).place(x=125, y=475)
-        tk.Button(self, text="Hello", command=self.hello).place(x=225, y=475)
+        tk.Label(self, text="Test Buttons").place(x=0, y = 675)
+        tk.Button(self, text="Test", command=self.test).place(x=75, y=675)
+        tk.Button(self, text="CNN MNIST", command=self.cnn_mst).place(x=125, y=675)
+        tk.Button(self, text="Hello", command=self.hello).place(x=225, y=675)
 
         job_queue_lstbox = tk.Listbox(self)
         job_queue_lstbox.place(x=25, y=0)
@@ -37,13 +38,16 @@ class Frontend(tk.Frame):
         file_path_text = tk.Entry(self, width=75, textvariable=self.file_path)
         file_path_text.place(x=200, y=25)
 
-        load_job_button = tk.Button(self, text="Load", command= lambda: self.load_file(file_path_text))
+        load_job_button = tk.Button(self, text="Load", command= lambda: self.load_file(self.file_path.get()))
         load_job_button.place(x=200, y=0)
 
         queue_job_button = tk.Button(self, text="Queue", command=lambda: self.queue())
         queue_job_button.place(x=275, y=0)
 
 
+
+        self.output_pane = tk.Text(self, wrap = 'word')
+        self.output_pane.place(x=200, y=50)
 
         self.pack(fill=tk.BOTH, expand=1)
 
@@ -66,3 +70,6 @@ class Frontend(tk.Frame):
         path = self.file_path.get()
         self.app.queue_by_path(path)
         self.file_path.set("")
+
+    def get_output_pane(self):
+        return self.output_pane

@@ -93,7 +93,8 @@ def main(unused_argv):
         # Calculate accuracy
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
         print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
+    return
 
 def __call__(self, *args, **kwargs):
-    main([])
-    return "mlp Complete!"
+    network = main([])
+    return network
