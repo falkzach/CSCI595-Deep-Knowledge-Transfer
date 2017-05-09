@@ -27,7 +27,6 @@ class Frontend(tk.Frame):
 
         self.job_queue_lstbox = tk.Listbox(self)
         self.job_queue_lstbox.place(x=25, y=0)
-        self.job_queue_lstbox.insert(tk.END, "No Jobs Queued")
 
         self.current_job_label = tk.Label(self, textvariable=self.current_job)
         self.current_job_label.place(x=25, y=190)
@@ -74,13 +73,20 @@ class Frontend(tk.Frame):
         return self.output_pane
 
     def update_elements(self):
-        self.current_job.set(self.app.job) # TODO: make a job object, store the name?
+        # Queued Jobs
+        self.job_queue_lstbox.delete(0, tk.END)
+        for job in list(self.app.job_queue.queue):
+            self.job_queue_lstbox.insert(tk.END, job)
 
-        # front = self.finished_jobs_lstbox.size()
-        # back = len(self.app.finished_jobs)
-        # if (back > front):
-        #     for i in range(back,front):
-        #         self.finished_jobs_lstbox.insert(tk.END, self.app.finished_jobs[back])
+        # Current Job
+        self.current_job.set(self.app.job)  # TODO: make a job object, store the name?
+
+        # Finished Jobs
+        front = self.finished_jobs_lstbox.size()
+        back = len(self.app.finished_jobs)
+        if (back > front):
+            for i in range(front, back):
+                self.finished_jobs_lstbox.insert(tk.END, self.app.finished_jobs[back-1])
 
         self.call_update()
 
