@@ -9,10 +9,11 @@ from tkinter import messagebox
 
 import frontend
 import job
+import ioredirect
+
 
 # Base Application class
 class APP(object):
-
     def __init__(self):
         # queues exist in main thread
         self.msg_queue = queue.Queue()
@@ -51,12 +52,6 @@ class APP(object):
     def submit_job(self, callable, args=[], kwargs ={}):
         self.job_queue.put((callable, args, kwargs))
 
-    def test_cnn_mnst(self):
-        self.queue_by_path(os.path.abspath("tests/mnist_deep.py"))
-
-    def test_hello(self):
-        self.queue_by_path(os.path.abspath("tests/hello.py"))
-
     def queue_by_path(self, path):
         experiment = job.Job(path)
         if os.path.isfile(path):
@@ -65,6 +60,11 @@ class APP(object):
             else:
                 print("__call__ not defined for " + path)
 
+    def test_cnn_mnst(self):
+        self.queue_by_path(os.path.abspath("tests/mnist_deep.py"))
+
+    def test_hello(self):
+        self.queue_by_path(os.path.abspath("tests/hello.py"))
 
 # CLI implementation of the application
 class CLI(APP):
@@ -73,7 +73,6 @@ class CLI(APP):
 
 # GUI implementation of the application
 class GUI(APP):
-
     def __init__(self):
         super().__init__()
 
@@ -87,7 +86,7 @@ class GUI(APP):
         self.frontend = frontend.Frontend(self.root, self)
 
         # redirect STDOUT
-        sys.stdout = TkIoRedirect(self.frontend.get_output_pane())
+        sys.stdout = ioredirect.TkIoRedirect(self.frontend.get_output_pane())
 
         # begin processor
         self.call_thread()
@@ -117,17 +116,3 @@ class GUI(APP):
         # TODO: interupt running job
         self.root.destroy()
         sys.exit()
-
-
-class TkIoRedirect(object):
-    def __init__(self,text_area):
-        self.text_area = text_area
-
-    def write(self, message):
-        self.text_area.config(state="normal")
-        self.text_area.insert("insert", message)
-        self.text_area.config(state="disabled")
-        self.text_area.see("end")
-
-    def flush(self):
-        pass
