@@ -14,8 +14,8 @@ class ConsumerThread(threading.Thread):
     # overrides the Thread run function
     def run(self):
         try:
-            callable, args, kwargs = self.job_queue.get_nowait()
-            result = callable.__call__(args, kwargs)
+            job = self.job_queue.get_nowait()
+            result = job.run()
             self.msg_queue.put("Job Completed: " + result)
         except queue.Empty:
             pass

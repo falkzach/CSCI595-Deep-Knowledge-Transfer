@@ -49,14 +49,14 @@ class APP(object):
     def call_thread(self):
         pass
 
-    def submit_job(self, callable, args=[], kwargs ={}):
-        self.job_queue.put((callable, args, kwargs))
+    def submit_job(self, job):
+        self.job_queue.put(job)
 
     def queue_by_path(self, path):
-        experiment = job.Job(path)
         if os.path.isfile(path):
+            experiment = job.Job(path)
             if "__call__" in dir(experiment.callable):
-                self.submit_job(experiment.callable)
+                self.submit_job(experiment)
             else:
                 print("__call__ not defined for " + path)
 
