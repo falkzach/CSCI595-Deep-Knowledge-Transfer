@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from frontend import Frontend
-from experiment import Experiment, ConsumerThread
+from experiment import Experiment, PythonExperiment, CheckpointExperiment
 from ioredirect import TkIoRedirect
 
 
@@ -21,6 +21,7 @@ class APP(object):
         self.experiment_queue = queue.Queue()
         self.tf_thread = None
         self.finished_experiments = []
+        self.loaded_experiments = []
 
     # called after the TK event loop by call
     def process_queues(self):
@@ -57,11 +58,16 @@ class APP(object):
 
     def queue_by_path(self, path):
         if os.path.isfile(path):
-            experiment = Experiment(path, self.msg_queue, self.experiment_queue)
+            experiment = PythonExperiment(path, self.msg_queue, self.experiment_queue)
             if "__call__" in dir(experiment.callable):
                 self.submit_job(experiment)
             else:
                 print("__call__ not defined for " + path)
+
+    def load_by_path(self, path):
+        if os.path.isfile(path):
+            experiment = CheckpointExperiment(path, self.msg_queue, self.experiment_queue)
+            self.loaded_experiments.append(experiment)
 
     def test_cnn_mnst(self):
         self.queue_by_path(os.path.abspath("tests/mnist_deep.py"))
@@ -111,7 +117,7 @@ class GUI(APP):
         if self.tf_thread is None:
             self.exit()
 
-        elif self.tf_thread.isAlive() or (self.tf_thread is ConsumerThread and not self.experiment_queue.empty()):
+        elif self.tf_thread.isAlive() or (self.tf_thread is Experiment and not self.experiment_queue.empty()):
             if messagebox.askokcancel("Quit", "Jobs still running, are you sure you want to quit?"):
                 self.exit()
 

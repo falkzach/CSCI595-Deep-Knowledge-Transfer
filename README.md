@@ -1,4 +1,10 @@
 # Deep Knowledge Transfer
+A GUI utility implemented in python to simplify the running of tensorflow experiments, save models, and transfer knowledge between them.
+
+## Dependencies
+* `tensorflow` preferably `tensorflow-gpu`
+
+* `tkinter`
 
 
 ## Experiments

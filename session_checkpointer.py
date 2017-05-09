@@ -8,7 +8,8 @@ def ensure_dir(path):
 
 
 class Checkpointer:
-    def __init__(self, session):
+    def __init__(self, session=tf.Session()):
+        self.session = session
         with tf.Session() as sess:
             self.saver = tf.train.Saver()
 
