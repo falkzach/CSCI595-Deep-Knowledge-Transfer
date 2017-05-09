@@ -97,3 +97,5 @@ class Frontend(tk.Frame):
     def call_update(self):
         self.app.root.after(1000, self.update_elements)
 
+if __name__ == "__main__":
+    exit(-1)

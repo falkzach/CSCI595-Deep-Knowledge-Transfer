@@ -119,3 +119,7 @@ class GUI(APP):
         # TODO: interupt running job
         self.root.destroy()
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    exit(-1)

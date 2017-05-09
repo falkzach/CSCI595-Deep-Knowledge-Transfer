@@ -4,6 +4,8 @@ import threading
 
 from importlib.machinery import SourceFileLoader
 
+from session_checkpointer import Checkpointer
+
 
 class ConsumerThread(threading.Thread):
     def __init__(self, msg_queue, job_queue):
@@ -21,12 +23,13 @@ class Experiment(ConsumerThread):
         self.args = []
         self.kwargs = {}
         self.result = ""
-        self.network = None
+        self.session = None
+        self.session_checkpointer = None
 
     def execute(self):
         try:
-            self.result, self.network = self.callable.__call__(self.args, self.kwargs)
-        except(TypeError):
+            self.result, self.session = self.callable.__call__(self.args, self.kwargs)
+        except TypeError:
             print("No result returned from the experimented " + self.name + "!")
 
     # overrides the Thread run function
@@ -34,5 +37,17 @@ class Experiment(ConsumerThread):
         try:
             self.execute()
             self.msg_queue.put("Job Completed: " + self.result)
+            self.session_checkpointer = Checkpointer(self.session)
+            self.session_checkpointer.save_model(self)
         except queue.Empty:
             pass
+
+    def get_save_name(self):
+        return self.name.split('.')[0] + ".session"
+
+    def get_save_path(self):
+        return self.name.split('.')[0] + "/"
+
+
+if __name__ == "__main__":
+    exit(-1)

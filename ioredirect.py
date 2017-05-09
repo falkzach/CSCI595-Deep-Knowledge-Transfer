@@ -12,3 +12,6 @@ class TkIoRedirect(object):
 
     def flush(self):
         pass
+
+if __name__ == "__main__":
+    exit(-1)
