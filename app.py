@@ -3,33 +3,12 @@
 import os
 import queue
 import sys
-import threading
+
 import tkinter as tk
-from importlib.machinery import SourceFileLoader
 from tkinter import messagebox
 
-from tests import hello
-
 import frontend
-from tests import mnist_deep
-
-
-class ConsumerThread(threading.Thread):
-
-    def __init__(self, msg_queue, job_queue):
-        threading.Thread.__init__(self)
-        self.msg_queue = msg_queue
-        self.job_queue = job_queue
-
-    # overrides the Thread run function
-    def run(self):
-        try:
-            callable, args, kwargs = self.job_queue.get_nowait()
-            result = callable.__call__(args, kwargs)
-            self.msg_queue.put("Job Completed: " + result)
-        except queue.Empty:
-            pass
-
+import job
 
 # Base Application class
 class APP(object):
@@ -38,22 +17,22 @@ class APP(object):
         # queues exist in main thread
         self.msg_queue = queue.Queue()
         self.job_queue = queue.Queue()
-        self.job = None
+        self.tf_thread = None
         self.finished_jobs = []
 
     # called after the TK event loop by call
     def process_queues(self):
         try:
             # check if there is a job in queue and no job running
-            if (not self.job_queue.empty()):
-                if (self.job is None):
-                    self.job = ConsumerThread(self.msg_queue, self.job_queue)
-                    self.job.start()
+            if not self.job_queue.empty():
+                if self.tf_thread is None:
+                    self.tf_thread = job.ConsumerThread(self.msg_queue, self.job_queue)
+                    self.tf_thread.start()
 
-            if (not self.job.isAlive()):
-                self.job.join()
-                self.finished_jobs.append(self.job)
-                self.job = None
+            if not self.tf_thread.isAlive():
+                self.tf_thread.join()
+                self.finished_jobs.append(self.tf_thread)
+                self.tf_thread = None
         except:
             pass
 
@@ -73,16 +52,16 @@ class APP(object):
         self.job_queue.put((callable, args, kwargs))
 
     def test_cnn_mnst(self):
-        self.submit_job(mnist_deep)
+        self.queue_by_path(os.path.abspath("tests/mnist_deep.py"))
 
     def test_hello(self):
-        self.submit_job(hello)
+        self.queue_by_path(os.path.abspath("tests/hello.py"))
 
     def queue_by_path(self, path):
-        if ( os.path.isfile(path) ):
-            foo = SourceFileLoader("", path).load_module()
-            if ("__call__" in dir(foo)):
-                self.submit_job(foo)
+        experiment = job.Job(path)
+        if os.path.isfile(path):
+            if "__call__" in dir(experiment.callable):
+                self.submit_job(experiment.callable)
             else:
                 print("__call__ not defined for " + path)
 
@@ -108,7 +87,7 @@ class GUI(APP):
         self.frontend = frontend.Frontend(self.root, self)
 
         # redirect STDOUT
-        sys.stdout = TK_IO_Redirect(self.frontend.get_output_pane())
+        sys.stdout = TkIoRedirect(self.frontend.get_output_pane())
 
         # begin processor
         self.call_thread()
@@ -127,10 +106,10 @@ class GUI(APP):
         self.root.after(100, self.process_queues)
 
     def on_close(self):
-        if(self.job is None):
+        if self.tf_thread is None:
             self.exit()
 
-        elif(self.job.isAlive() or ( self.job is ConsumerThread and not self.job_queue.empty() ) ):
+        elif self.tf_thread.isAlive() or (self.tf_thread is job.ConsumerThread and not self.job_queue.empty()):
             if messagebox.askokcancel("Quit", "Jobs still running, are you sure you want to quit?"):
                 self.exit()
 
@@ -140,7 +119,7 @@ class GUI(APP):
         sys.exit()
 
 
-class TK_IO_Redirect(object):
+class TkIoRedirect(object):
     def __init__(self,text_area):
         self.text_area = text_area
 

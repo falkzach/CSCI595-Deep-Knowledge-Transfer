@@ -77,12 +77,12 @@ class Frontend(tk.Frame):
             self.job_queue_lstbox.insert(tk.END, job)
 
         # Current Job, set to current job
-        self.current_job.set(self.app.job)  # TODO: make a job object, store the name?
+        self.current_job.set(self.app.tf_thread)  # TODO: make a job object, store the name?
 
         # Finished Jobs, find unaccounted for and populate
         front = self.finished_jobs_lstbox.size()
         back = len(self.app.finished_jobs)
-        if (back > front):
+        if back > front:
             for i in range(front, back):
                 self.finished_jobs_lstbox.insert(tk.END, self.app.finished_jobs[back-1])
 
