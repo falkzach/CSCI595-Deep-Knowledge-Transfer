@@ -6,11 +6,11 @@ import tkinter.filedialog as fd
 
 class Frontend(tk.Frame):
 
-    def __init__(self, parent, main):
+    def __init__(self, parent, app):
         tk.Frame.__init__(self, parent, background="white")
 
         self.parent = parent
-        self.main = main
+        self.app = app
 
         self.file_path = tk.StringVar()
 
@@ -48,21 +48,21 @@ class Frontend(tk.Frame):
         self.pack(fill=tk.BOTH, expand=1)
 
     def test(self):
-        self.main.test_job()
+        self.app.test_job()
 
     def cnn_mst(self):
-        self.main.test_cnn_mnst()
+        self.app.test_cnn_mnst()
 
     def hello(self):
-        self.main.test_hello()
+        self.app.test_hello()
 
     def load_file(self, display):
-        filename = fd.askopenfilename(
+        path = fd.askopenfilename(
             filetypes=( ("Python Tensor FLow File", "*.py"), ),
         )
-        self.file_path.set(filename)
+        self.file_path.set(path)
 
     def queue(self):
-        print(self.file_path.get())
-        # TODO: queue the job
+        path = self.file_path.get()
+        self.app.queue_by_path(path)
         self.file_path.set("")

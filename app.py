@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import os
+from importlib.machinery import SourceFileLoader
 import queue
 import threading
 import tkinter as tk
@@ -37,7 +39,7 @@ class APP(object):
         self.msg_queue = queue.Queue()
         self.job_queue = queue.Queue()
         self.job = None
-        self.finished_jobs = [];
+        self.finished_jobs = []
 
     # called after the TK event loop by call
     def process_queues(self):
@@ -80,6 +82,11 @@ class APP(object):
     def test_hello(self):
         self.submit_job(hello)
 
+    def queue_by_path(self, path):
+        if ( os.path.isfile(path) ):
+            foo = SourceFileLoader("", path).load_module()
+            self.submit_job(foo)
+
 
 
 # CLI implementation of the application
@@ -116,6 +123,9 @@ class GUI(APP):
         self.root.after(100, self.process_queues)
 
     def on_close(self):
-        if(self.job.isAlive() or ( self.job is ConsumerThread and not self.job_queue.empty() ) ):
+        if(self.job is None):
+            self.root.destroy()
+
+        elif(self.job.isAlive() or ( self.job is ConsumerThread and not self.job_queue.empty() ) ):
             if messagebox.askokcancel("Quit", "Jobs still running, are you sure you want to quit?"):
                 self.root.destroy()

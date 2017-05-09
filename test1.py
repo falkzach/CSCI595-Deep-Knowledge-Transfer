@@ -4,11 +4,11 @@ import tensorflow as tf
 
 
 def __call__(self, *args, **kwargs):
-    test()
+    main([])
     return "Success!"
 
 
-def test():
+def main(unused_argv):
     config = tf.ConfigProto(device_count={'GPU': 0})
     with tf.Session(config=config) as sess:
 
