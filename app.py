@@ -26,7 +26,7 @@ class ConsumerThread(threading.Thread):
         try:
             callable, args, kwargs = self.job_queue.get_nowait()
             result = callable.__call__(args, kwargs)
-            self.msg_queue.put("Callable Completed: " + result)
+            self.msg_queue.put("Job Completed: " + result)
         except queue.Empty:
             pass
 
@@ -47,7 +47,6 @@ class APP(object):
             # check if there is a job in queue and no job running
             if (not self.job_queue.empty()):
                 if (self.job is None):
-                    print("?test?")
                     self.job = ConsumerThread(self.msg_queue, self.job_queue)
                     self.job.start()
 

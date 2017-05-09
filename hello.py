@@ -2,9 +2,10 @@ import tensorflow as tf
 
 
 def main(unused_argv):
-    hello = tf.constant("Hello, tensorflow!")
+    network = tf.constant("Hello, Tensorflow!")
     sess = tf.Session()
-    print(sess.run(hello))
+    print(sess.run(network))
+
 
 if __name__ =="__main__":
     main([])
