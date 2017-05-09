@@ -28,7 +28,7 @@ class APP(object):
             # check if there is a job in queue and no job running
             if not self.experiment_queue.empty():
                 if self.tf_thread is None:
-                    self.tf_thread = ConsumerThread(self.msg_queue, self.experiment_queue)
+                    self.tf_thread = self.experiment_queue.get_nowait()
                     self.tf_thread.start()
 
             if not self.tf_thread.isAlive():
@@ -56,7 +56,7 @@ class APP(object):
 
     def queue_by_path(self, path):
         if os.path.isfile(path):
-            experiment = Experiment(path)
+            experiment = Experiment(path, self.msg_queue, self.experiment_queue)
             if "__call__" in dir(experiment.callable):
                 self.submit_job(experiment)
             else:
