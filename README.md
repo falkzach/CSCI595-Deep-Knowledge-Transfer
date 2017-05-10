@@ -2,11 +2,16 @@
 A GUI utility implemented in python to simplify the running of TensorFlow experiments, save models, and transfer knowledge between them.
 
 ## Dependencies
+* `python 3.5` for compatibility with `tensorflow-gpu`
+
 * `tensorflow` preferably `tensorflow-gpu`
 
 * `tkinter`
 
 * `tendo`
+
+## Running
+`python3 main.py`
 
 ## Experiments
 * must be a python file using tensforflow core libraries
