@@ -1,11 +1,11 @@
 import os
 import queue
 import threading
-import tensorflow as tk
+import tensorflow as tf
 
 from importlib.machinery import SourceFileLoader
 
-from session_checkpointer import Checkpointer
+from checkpoint import SaveCheckpoint, LoadCheckpoint
 
 
 class Experiment(threading.Thread):
@@ -15,7 +15,7 @@ class Experiment(threading.Thread):
         self.experiment_queue = job_queue
 
         self.session = None
-        self.session_checkpointer = None
+        self.session_checkpoint = None
 
 
 class PythonExperiment(Experiment):
@@ -39,8 +39,8 @@ class PythonExperiment(Experiment):
         try:
             self.execute()
             self.msg_queue.put("Job Completed: " + self.result)
-            self.session_checkpointer = Checkpointer(self.session)
-            self.session_checkpointer.save_model(self)
+            self.session_checkpoint = SaveCheckpoint(self.session)
+            self.session_checkpoint.save_model(self)
         except queue.Empty:
             pass
 
@@ -54,10 +54,11 @@ class PythonExperiment(Experiment):
 class CheckpointExperiment(Experiment):
     def __init__(self, path, msg_queue, experiment_queue):
         super().__init__(msg_queue, experiment_queue)
-        print(path)
-        self.session_checkpointer = Checkpointer()
-        self.session_checkpointer.load_model(path)
-        print(self.session_checkpointer)
+        self.path = path
+        self.pwd = os.path.dirname(os.path.realpath(path))
+        self.name = os.path.basename(self.pwd)
+
+        self.session_checkpoint = LoadCheckpoint(self.pwd, self.name)
 
     def run(self):
         pass
