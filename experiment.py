@@ -39,7 +39,7 @@ class PythonExperiment(Experiment):
         try:
             self.execute()
             self.msg_queue.put("Job Completed: " + self.result)
-            self.session_checkpoint = SaveCheckpoint(self.session)
+            self.session_checkpoint = SaveCheckpoint()
             self.session_checkpoint.save_model(self)
         except queue.Empty:
             pass

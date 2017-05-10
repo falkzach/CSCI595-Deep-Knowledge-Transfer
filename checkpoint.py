@@ -7,13 +7,8 @@ def ensure_dir(path):
         os.makedirs(path)
 
 
-class Checkpoint():
-    pass
-
-
 class SaveCheckpoint:
-    def __init__(self, session):
-        self.session = session
+    def __init__(self,):
         with tf.Session() as sess:
             self.saver = tf.train.Saver()
 
@@ -23,6 +18,10 @@ class SaveCheckpoint:
         path += experiment.get_save_name()
         saved_path = self.saver.save(experiment.session, path)
         print("Session from " + experiment.name + " saved to " + saved_path + ".")
+        op = experiment.session.graph.get_operations()
+        print([m.values() for m in op][1])
+        col = experiment.session.graph.get_all_collection_keys()
+        print([m for m in col])
 
 
 class LoadCheckpoint:
@@ -33,7 +32,10 @@ class LoadCheckpoint:
         self.saver.restore(sess, tf.train.latest_checkpoint(path))
         self.session = sess
         print("Loaded Checkpoint: " + name)
-
+        op = sess.graph.get_operations()
+        print([m.values() for m in op][1])
+        col = sess.graph.get_all_collection_keys()
+        print([m for m in col])
 
 if __name__ == "__main__":
     exit(-1)
