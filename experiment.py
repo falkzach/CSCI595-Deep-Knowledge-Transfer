@@ -5,6 +5,8 @@ import tensorflow as tf
 
 from importlib.machinery import SourceFileLoader
 
+import time
+
 from checkpoint import SaveCheckpoint, LoadCheckpoint
 
 
@@ -16,6 +18,10 @@ class Experiment(threading.Thread):
 
         self.session = None
         self.session_checkpoint = None
+
+
+def get_opoch_time():
+    return str(int(time.time()))
 
 
 class PythonExperiment(Experiment):
@@ -45,10 +51,10 @@ class PythonExperiment(Experiment):
             pass
 
     def get_save_name(self):
-        return self.name.split('.')[0] + ".session"
+        return self.name.split('.')[0] + "-" + get_opoch_time() +".session"
 
     def get_save_path(self):
-        return self.name.split('.')[0] + "/"
+        return self.name.split('.')[0] + "-" + get_opoch_time() + "/"
 
 
 class CheckpointExperiment(Experiment):
